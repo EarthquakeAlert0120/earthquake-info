@@ -34,8 +34,8 @@
         }
         .earthquake-item, .warning-item {
             background: white;
-            margin: 15px 0;
-            padding: 25px 35px;
+            margin: 12px 0;
+            padding: 20px 35px;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.15);
         }
@@ -72,21 +72,20 @@
         .warning-badge.caution {
             background: #f57c00;
         }
-        .earthquake-first-line {
+        .earthquake-line {
             color: #1565c0;
             font-size: 32px;
             font-weight: bold;
-            margin-bottom: 8px;
-        }
-        .earthquake-second-line {
-            font-size: 36px;
-            color: #333;
-            padding-left: 10px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
         }
         .magnitude {
             font-weight: bold;
             color: #d32f2f;
-            display: inline;
+        }
+        .location {
+            color: #333;
         }
         .warning-area {
             font-size: 38px;
@@ -290,8 +289,8 @@
             
             loading.style.display = 'none';
             
-            // 最新15件を表示（2行表示で省スペース化したため件数増加）
-            data.slice(0, 15).forEach(item => {
+            // 最新20件を表示（1行表示でさらに省スペース化）
+            data.slice(0, 20).forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'earthquake-item';
                 
@@ -305,10 +304,12 @@
                 }
                 
                 div.innerHTML = `
-                    <div class="earthquake-first-line">
-                        📅 ${datetime}　　<span class="magnitude">震度: ${item.maxi || '不明'}</span>${isTarget ? '<span class="alert-badge">⚠️ 要注意地域</span>' : ''}
+                    <div class="earthquake-line">
+                        <span>📅 ${datetime}</span>
+                        <span class="magnitude">震度: ${item.maxi || '不明'}</span>
+                        <span class="location">📍 ${location}</span>
+                        ${isTarget ? '<span class="alert-badge">⚠️ 要注意地域</span>' : ''}
                     </div>
-                    <div class="earthquake-second-line">📍 ${location}</div>
                 `;
                 
                 list.appendChild(div);
