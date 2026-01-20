@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>地震情報</title>
+    <title>地震・気象警報情報</title>
     <style>
         body {
             font-family: sans-serif;
@@ -17,23 +17,35 @@
             color: #d32f2f;
             text-align: center;
             font-size: 72px;
-            margin-bottom: 40px;
+            margin-bottom: 20px;
+        }
+        h2 {
+            color: #1565c0;
+            font-size: 48px;
+            margin-top: 60px;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 4px solid #1565c0;
         }
         #loading {
             text-align: center;
             padding: 40px;
             font-size: 36px;
         }
-        .earthquake-item {
+        .earthquake-item, .warning-item {
             background: white;
             margin: 20px 0;
             padding: 35px;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.15);
         }
-        .earthquake-item.highlight {
+        .earthquake-item.highlight, .warning-item.highlight {
             background: #fff9c4;
             border: 4px solid #fbc02d;
+        }
+        .warning-item.severe {
+            background: #ffebee;
+            border: 4px solid #c62828;
         }
         .alert-badge {
             display: inline-block;
@@ -44,6 +56,21 @@
             font-size: 28px;
             font-weight: bold;
             margin-left: 20px;
+        }
+        .warning-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-size: 28px;
+            font-weight: bold;
+            margin: 5px 10px 5px 0;
+            color: white;
+        }
+        .warning-badge.severe {
+            background: #c62828;
+        }
+        .warning-badge.caution {
+            background: #f57c00;
         }
         .datetime {
             color: #1565c0;
@@ -68,21 +95,55 @@
             margin: 15px 0;
             font-size: 38px;
         }
+        .warning-area {
+            font-size: 38px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #1565c0;
+        }
+        .warning-types {
+            margin-top: 15px;
+        }
         footer {
             text-align: center;
             margin-top: 60px;
             color: #666;
             font-size: 24px;
         }
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #4caf50;
+            font-size: 32px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
     </style>
 </head>
 <body>
-    <h1>🚨 地震情報</h1>
-    <div id="loading">読み込み中...</div>
+    <h1>🚨 防災情報</h1>
+    
+    <h2>⚠️ 気象警報・注意報</h2>
+    <div id="warning-loading">読み込み中...</div>
+    <div id="warning-list"></div>
+    
+    <h2>🌏 地震情報</h2>
+    <div id="earthquake-loading">読み込み中...</div>
     <div id="earthquake-list"></div>
 
     <script>
-        // 監視対象地域のキーワード
+        // 監視対象地域のコード
+        const TARGET_REGIONS = {
+            '130000': '東京都',
+            '270000': '大阪府',
+            '140007': '横浜市',
+            '230000': '愛知県',
+            '280000': '兵庫県',
+            '330000': '岡山県'
+        };
+
+        // 監視対象地域のキーワード（地震用）
         const TARGET_AREAS = [
             '東京都',
             '中央区',
@@ -99,6 +160,106 @@
             '水島'
         ];
 
+        // 有効な警報・注意報かチェック
+        function isValidWarning(warning) {
+            if (!warning || !warning.status) return false;
+            
+            // 除外するキーワード
+            const invalidKeywords = [
+                '発表警報・注意報はなし',
+                'なし',
+                '継続',
+                'undefined'
+            ];
+            
+            const status = warning.status;
+            
+            // 無効なキーワードが含まれていたら除外
+            if (invalidKeywords.some(keyword => status.includes(keyword))) {
+                return false;
+            }
+            
+            // 「警報」または「注意報」が含まれているもののみ有効
+            return status.includes('警報') || status.includes('注意報');
+        }
+
+        // 気象警報情報を取得
+        async function fetchWarningData() {
+            const warningLoading = document.getElementById('warning-loading');
+            const warningList = document.getElementById('warning-list');
+            
+            try {
+                let hasWarnings = false;
+                
+                for (const [code, name] of Object.entries(TARGET_REGIONS)) {
+                    try {
+                        const response = await fetch(`https://www.jma.go.jp/bosai/warning/data/warning/${code}.json`);
+                        const data = await response.json();
+                        
+                        if (data.areaTypes && data.areaTypes.length > 0) {
+                            data.areaTypes.forEach(areaType => {
+                                if (areaType.areas) {
+                                    areaType.areas.forEach(area => {
+                                        if (area.warnings && area.warnings.length > 0) {
+                                            // 有効な警報のみをフィルタリング
+                                            const validWarnings = area.warnings.filter(isValidWarning);
+                                            
+                                            if (validWarnings.length > 0) {
+                                                displayWarning(warningList, name, area, validWarnings);
+                                                hasWarnings = true;
+                                            }
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    } catch (error) {
+                        console.error(`Error fetching warning for ${name}:`, error);
+                    }
+                }
+                
+                warningLoading.style.display = 'none';
+                
+                if (!hasWarnings) {
+                    warningList.innerHTML = '<div class="no-data">✅ 現在、対象地域に警報・注意報は発表されていません</div>';
+                }
+            } catch (error) {
+                warningLoading.textContent = 'データの取得に失敗しました';
+                console.error('Error:', error);
+            }
+        }
+
+        // 警報情報を表示
+        function displayWarning(container, regionName, area, validWarnings) {
+            const div = document.createElement('div');
+            div.className = 'warning-item';
+            
+            // 地域名がundefinedでないか確認
+            const areaName = area.name || '地域名不明';
+            
+            // 警報があれば赤く強調
+            const hasSevereWarning = validWarnings.some(w => w.status && w.status.includes('警報'));
+            if (hasSevereWarning) {
+                div.classList.add('severe');
+            } else {
+                div.classList.add('highlight');
+            }
+            
+            let warningHTML = `<div class="warning-area">📍 ${regionName} - ${areaName}</div><div class="warning-types">`;
+            
+            validWarnings.forEach(warning => {
+                if (warning.status) {
+                    const isSevere = warning.status.includes('警報');
+                    const badgeClass = isSevere ? 'severe' : 'caution';
+                    warningHTML += `<span class="warning-badge ${badgeClass}">${warning.status}</span>`;
+                }
+            });
+            
+            warningHTML += '</div>';
+            div.innerHTML = warningHTML;
+            container.appendChild(div);
+        }
+
         // 気象庁APIから地震情報を取得
         async function fetchEarthquakeData() {
             try {
@@ -106,7 +267,7 @@
                 const data = await response.json();
                 displayEarthquakes(data);
             } catch (error) {
-                document.getElementById('loading').textContent = 'データの取得に失敗しました';
+                document.getElementById('earthquake-loading').textContent = 'データの取得に失敗しました';
                 console.error('Error:', error);
             }
         }
@@ -134,7 +295,7 @@
 
         // 地震情報を表示
         function displayEarthquakes(data) {
-            const loading = document.getElementById('loading');
+            const loading = document.getElementById('earthquake-loading');
             const list = document.getElementById('earthquake-list');
             
             loading.style.display = 'none';
@@ -168,11 +329,20 @@
         }
 
         // ページ読み込み時に実行
+        fetchWarningData();
         fetchEarthquakeData();
+        
+        // 5分ごとに自動更新
+        setInterval(() => {
+            document.getElementById('warning-list').innerHTML = '';
+            document.getElementById('earthquake-list').innerHTML = '';
+            fetchWarningData();
+            fetchEarthquakeData();
+        }, 300000); // 5分 = 300,000ミリ秒
     </script>
 
     <footer>
-        <p>※気象庁が発表した地震情報を表示しています</p>
+        <p>※気象庁が発表した情報を表示しています（5分ごとに自動更新）</p>
     </footer>
 </body>
 </html>
