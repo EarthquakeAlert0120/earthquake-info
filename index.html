@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>地震情報 - 震度3以上</title>
+    <title>地震情報</title>
     <style>
         body {
             font-family: sans-serif;
@@ -40,10 +40,16 @@
             margin: 5px 0;
             font-size: 1.1em;
         }
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #666;
+            font-size: 0.9em;
+        }
     </style>
 </head>
 <body>
-    <h1>🚨 地震情報（震度3以上）</h1>
+    <h1>🚨 地震情報</h1>
     <div id="loading">読み込み中...</div>
     <div id="earthquake-list"></div>
 
@@ -87,5 +93,9 @@
         // ページ読み込み時に実行
         fetchEarthquakeData();
     </script>
+
+    <footer>
+        <p>※気象庁が発表した地震情報を表示しています</p>
+    </footer>
 </body>
 </html>
