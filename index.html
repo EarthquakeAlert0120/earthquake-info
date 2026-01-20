@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>地震情報 - 震度3以上</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #d32f2f;
+            text-align: center;
+        }
+        #loading {
+            text-align: center;
+            padding: 20px;
+        }
+        .earthquake-item {
+            background: white;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .time {
+            color: #666;
+            font-size: 0.9em;
+        }
+        .magnitude {
+            font-weight: bold;
+            color: #d32f2f;
+            font-size: 1.2em;
+        }
+        .location {
+            margin: 5px 0;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+    <h1>🚨 地震情報（震度3以上）</h1>
+    <div id="loading">読み込み中...</div>
+    <div id="earthquake-list"></div>
+
+    <script>
+        // 気象庁APIから地震情報を取得
+        async function fetchEarthquakeData() {
+            try {
+                const response = await fetch('https://www.jma.go.jp/bosai/quake/data/list.json');
+                const data = await response.json();
+                displayEarthquakes(data);
+            } catch (error) {
+                document.getElementById('loading').textContent = 'データの取得に失敗しました';
+                console.error('Error:', error);
+            }
+        }
+
+        // 地震情報を表示
+        function displayEarthquakes(data) {
+            const loading = document.getElementById('loading');
+            const list = document.getElementById('earthquake-list');
+            
+            loading.style.display = 'none';
+            
+            // 最新10件を表示
+            data.slice(0, 10).forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'earthquake-item';
+                
+                const time = new Date(item.at).toLocaleString('ja-JP');
+                
+                div.innerHTML = `
+                    <div class="time">⏰ ${time}</div>
+                    <div class="location">📍 ${item.anm || '情報なし'}</div>
+                    <div class="magnitude">震度: ${item.maxi || '不明'}</div>
+                `;
+                
+                list.appendChild(div);
+            });
+        }
+
+        // ページ読み込み時に実行
+        fetchEarthquakeData();
+    </script>
+</body>
+</html>
