@@ -27,6 +27,20 @@
             border-radius: 5px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
+        .earthquake-item.highlight {
+            background: #fff9c4;
+            border: 2px solid #fbc02d;
+        }
+        .alert-badge {
+            display: inline-block;
+            background: #ff6f00;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 3px;
+            font-size: 0.85em;
+            font-weight: bold;
+            margin-left: 10px;
+        }
         .datetime {
             color: #1565c0;
             font-size: 1em;
@@ -63,6 +77,23 @@
     <div id="earthquake-list"></div>
 
     <script>
+        // 監視対象地域のキーワード
+        const TARGET_AREAS = [
+            '東京都',
+            '中央区',
+            '大阪',
+            '大阪市',
+            '北区',
+            '横浜',
+            '磯子区',
+            '名古屋',
+            '港区',
+            '堺市',
+            '西区',
+            '倉敷',
+            '水島'
+        ];
+
         // 気象庁APIから地震情報を取得
         async function fetchEarthquakeData() {
             try {
@@ -90,6 +121,12 @@
             };
         }
 
+        // 対象地域かどうかチェック
+        function isTargetArea(locationText) {
+            if (!locationText) return false;
+            return TARGET_AREAS.some(area => locationText.includes(area));
+        }
+
         // 地震情報を表示
         function displayEarthquakes(data) {
             const loading = document.getElementById('loading');
@@ -103,13 +140,21 @@
                 div.className = 'earthquake-item';
                 
                 const datetime = formatDateTime(item.at);
+                const location = item.anm || '情報なし';
+                const isTarget = isTargetArea(location);
+                
+                // 対象地域の場合はハイライト
+                if (isTarget) {
+                    div.classList.add('highlight');
+                }
                 
                 div.innerHTML = `
                     <div class="datetime">
                         <span class="date">📅 ${datetime.date}</span>
                         <span class="time">⏰ ${datetime.time}</span>
+                        ${isTarget ? '<span class="alert-badge">⚠️ 要注意地域</span>' : ''}
                     </div>
-                    <div class="location">📍 ${item.anm || '情報なし'}</div>
+                    <div class="location">📍 ${location}</div>
                     <div class="magnitude">震度: ${item.maxi || '不明'}</div>
                 `;
                 
