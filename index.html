@@ -34,8 +34,8 @@
         }
         .earthquake-item, .warning-item {
             background: white;
-            margin: 20px 0;
-            padding: 35px;
+            margin: 15px 0;
+            padding: 25px 35px;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.15);
         }
@@ -51,11 +51,11 @@
             display: inline-block;
             background: #ff6f00;
             color: white;
-            padding: 8px 20px;
+            padding: 6px 16px;
             border-radius: 8px;
-            font-size: 28px;
+            font-size: 26px;
             font-weight: bold;
-            margin-left: 20px;
+            margin-left: 15px;
         }
         .warning-badge {
             display: inline-block;
@@ -72,28 +72,21 @@
         .warning-badge.caution {
             background: #f57c00;
         }
-        .datetime {
+        .earthquake-first-line {
             color: #1565c0;
             font-size: 32px;
             font-weight: bold;
-            margin-bottom: 15px;
+            margin-bottom: 8px;
         }
-        .date {
-            display: inline-block;
-            margin-right: 20px;
-        }
-        .time {
-            display: inline-block;
+        .earthquake-second-line {
+            font-size: 36px;
+            color: #333;
+            padding-left: 10px;
         }
         .magnitude {
             font-weight: bold;
             color: #d32f2f;
-            font-size: 48px;
-            margin-top: 10px;
-        }
-        .location {
-            margin: 15px 0;
-            font-size: 38px;
+            display: inline;
         }
         .warning-area {
             font-size: 38px;
@@ -281,10 +274,7 @@
             const hour = String(date.getHours()).padStart(2, '0');
             const minute = String(date.getMinutes()).padStart(2, '0');
             
-            return {
-                date: `${year}年${month}月${day}日`,
-                time: `${hour}時${minute}分`
-            };
+            return `${year}年${month}月${day}日 ⏰ ${hour}時${minute}分`;
         }
 
         // 対象地域かどうかチェック
@@ -300,8 +290,8 @@
             
             loading.style.display = 'none';
             
-            // 最新10件を表示
-            data.slice(0, 10).forEach(item => {
+            // 最新15件を表示（2行表示で省スペース化したため件数増加）
+            data.slice(0, 15).forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'earthquake-item';
                 
@@ -315,13 +305,10 @@
                 }
                 
                 div.innerHTML = `
-                    <div class="datetime">
-                        <span class="date">📅 ${datetime.date}</span>
-                        <span class="time">⏰ ${datetime.time}</span>
-                        ${isTarget ? '<span class="alert-badge">⚠️ 要注意地域</span>' : ''}
+                    <div class="earthquake-first-line">
+                        📅 ${datetime}　　<span class="magnitude">震度: ${item.maxi || '不明'}</span>${isTarget ? '<span class="alert-badge">⚠️ 要注意地域</span>' : ''}
                     </div>
-                    <div class="location">📍 ${location}</div>
-                    <div class="magnitude">震度: ${item.maxi || '不明'}</div>
+                    <div class="earthquake-second-line">📍 ${location}</div>
                 `;
                 
                 list.appendChild(div);
