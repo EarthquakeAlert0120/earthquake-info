@@ -27,9 +27,18 @@
             border-radius: 5px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
+        .datetime {
+            color: #1565c0;
+            font-size: 1em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .date {
+            display: inline-block;
+            margin-right: 10px;
+        }
         .time {
-            color: #666;
-            font-size: 0.9em;
+            display: inline-block;
         }
         .magnitude {
             font-weight: bold;
@@ -66,6 +75,21 @@
             }
         }
 
+        // 日付と時刻を見やすく整形
+        function formatDateTime(dateString) {
+            const date = new Date(dateString);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hour = String(date.getHours()).padStart(2, '0');
+            const minute = String(date.getMinutes()).padStart(2, '0');
+            
+            return {
+                date: `${year}年${month}月${day}日`,
+                time: `${hour}時${minute}分`
+            };
+        }
+
         // 地震情報を表示
         function displayEarthquakes(data) {
             const loading = document.getElementById('loading');
@@ -78,10 +102,13 @@
                 const div = document.createElement('div');
                 div.className = 'earthquake-item';
                 
-                const time = new Date(item.at).toLocaleString('ja-JP');
+                const datetime = formatDateTime(item.at);
                 
                 div.innerHTML = `
-                    <div class="time">⏰ ${time}</div>
+                    <div class="datetime">
+                        <span class="date">📅 ${datetime.date}</span>
+                        <span class="time">⏰ ${datetime.time}</span>
+                    </div>
                     <div class="location">📍 ${item.anm || '情報なし'}</div>
                     <div class="magnitude">震度: ${item.maxi || '不明'}</div>
                 `;
