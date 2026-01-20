@@ -144,7 +144,7 @@
         </div>
     </div>
     
-    <h2>⚠️ 気象警報・注意報</h2>
+    <h2>⚠️ 気象警報</h2>
     <div id="warning-loading">読み込み中...</div>
     <div id="warning-list"></div>
     
@@ -237,36 +237,14 @@
             '水島'
         ];
 
-        // 有効な警報・注意報かチェック
+        // 警報のみ有効（注意報は除外）
         function isValidWarning(warning) {
             if (!warning || !warning.status) return false;
             
             const status = warning.status;
             
-            // 除外するキーワード
-            const invalidKeywords = [
-                '発表警報・注意報はなし',
-                'なし',
-                '継続',
-                'undefined',
-                '警報から注意報',
-                '注意報から警報',
-                '切替'
-            ];
-            
-            // 無効なキーワードが含まれていたら除外
-            if (invalidKeywords.some(keyword => status.includes(keyword))) {
-                return false;
-            }
-            
-            // 具体的な警報・注意報名が含まれているもののみ有効
-            const validPatterns = [
-                '大雨', '洪水', '暴風', '暴風雪', '大雪', '波浪',
-                '高潮', '雷', '融雪', '濃霧', '乾燥', 'なだれ',
-                '低温', '霜', '着氷', '着雪', '記録的短時間大雨'
-            ];
-            
-            return validPatterns.some(pattern => status.includes(pattern));
+            // 「警報」が含まれているもののみ有効
+            return status.includes('警報');
         }
 
         // 対象地域かチェック
@@ -293,11 +271,11 @@
                                 if (areaType.areas) {
                                     areaType.areas.forEach(area => {
                                         if (area.warnings && area.warnings.length > 0) {
-                                            // 有効な警報のみをフィルタリング
+                                            // 警報のみをフィルタリング
                                             const validWarnings = area.warnings.filter(isValidWarning);
                                             
                                             // 地域名が有効で、警報があれば表示
-                                            if (validWarnings.length > 0 && area.name && area.name !== '地域名不明') {
+                                            if (validWarnings.length > 0 && area.name) {
                                                 displayWarning(warningList, name, area, validWarnings);
                                                 hasWarnings = true;
                                             }
@@ -314,7 +292,7 @@
                 warningLoading.style.display = 'none';
                 
                 if (!hasWarnings) {
-                    warningList.innerHTML = '<div class="no-data">✅ 現在、全国に警報・注意報は発表されていません</div>';
+                    warningList.innerHTML = '<div class="no-data">✅ 現在、全国に警報は発表されていません</div>';
                 }
             } catch (error) {
                 warningLoading.textContent = 'データの取得に失敗しました';
@@ -332,21 +310,14 @@
             // 対象地域かチェック
             const isTarget = isTargetRegion(regionName, areaName);
             
-            // 警報があれば赤く強調
-            const hasSevereWarning = validWarnings.some(w => w.status && w.status.includes('警報'));
-            
-            // クラス設定
-            if (isTarget && hasSevereWarning) {
+            // クラス設定（すべて警報なので赤系）
+            if (isTarget) {
                 div.classList.add('target-severe');
-            } else if (isTarget) {
-                div.classList.add('target-highlight');
-            } else if (hasSevereWarning) {
-                div.classList.add('severe');
             } else {
-                div.classList.add('highlight');
+                div.classList.add('severe');
             }
             
-            // 警報・注意報を「、」で結合
+            // 警報を「、」で結合
             const warningTexts = validWarnings.map(w => w.status).join('、');
             
             const lineClass = isTarget ? 'target' : '';
