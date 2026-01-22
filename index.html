@@ -80,21 +80,21 @@
             padding: 15px 20px;
         }
 
-        /* 警報表示 - 1行形式 */
+        /* 警報表示 - 1行形式（データ部フォント拡大・行間縮小） */
         .warning-list-compact {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px; /* 8px → 6px に縮小 */
         }
 
         .warning-row {
             display: flex;
             align-items: center;
-            padding: 12px 20px;
+            padding: 10px 20px; /* 12px → 10px に縮小 */
             background: #1f2937;
             border-radius: 10px;
             gap: 20px;
-            font-size: 28px;
+            font-size: 32px; /* 28px → 32px に拡大 */
         }
 
         .warning-row.special-area {
@@ -111,7 +111,7 @@
         .warning-badge {
             padding: 8px 16px;
             border-radius: 8px;
-            font-size: 24px;
+            font-size: 28px; /* 24px → 28px */
             font-weight: bold;
             min-width: 140px;
             text-align: center;
@@ -141,7 +141,7 @@
         .warning-types {
             background: linear-gradient(135deg, #3b82f6, #1d4ed8);
             color: #fff;
-            font-size: 26px;
+            font-size: 30px; /* 26px → 30px */
             font-weight: bold;
             padding: 8px 20px;
             border-radius: 8px;
@@ -154,25 +154,25 @@
             color: #000;
             padding: 6px 14px;
             border-radius: 10px;
-            font-size: 20px;
+            font-size: 22px; /* 20px → 22px */
             font-weight: bold;
         }
 
-        /* 地震情報 */
+        /* 地震情報（データ部フォント拡大・行間縮小） */
         .earthquake-list {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px; /* 8px → 6px に縮小 */
         }
 
         .earthquake-item {
             display: flex;
             align-items: center;
-            padding: 12px 20px;
+            padding: 10px 20px; /* 12px → 10px に縮小 */
             background: #1f2937;
             border-radius: 10px;
             gap: 25px;
-            font-size: 28px;
+            font-size: 32px; /* 28px → 32px に拡大 */
         }
 
         .earthquake-item.special-area {
@@ -182,7 +182,7 @@
         }
 
         .earthquake-time {
-            font-size: 26px;
+            font-size: 30px; /* 26px → 30px */
             color: #9ca3af;
             min-width: 180px;
         }
@@ -193,7 +193,7 @@
             font-weight: bold;
             min-width: 120px;
             text-align: center;
-            font-size: 26px;
+            font-size: 30px; /* 26px → 30px */
         }
 
         .intensity-1 { background: #a0aec0; color: #000; }
@@ -208,11 +208,11 @@
 
         .earthquake-location {
             flex: 1;
-            font-size: 28px;
+            font-size: 32px; /* 28px → 32px */
         }
 
         .earthquake-magnitude {
-            font-size: 28px;
+            font-size: 32px; /* 28px → 32px */
             font-weight: bold;
             color: #fff;
             background: linear-gradient(135deg, #8b5cf6, #6d28d9);
