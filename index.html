@@ -80,21 +80,21 @@
             padding: 15px 20px;
         }
 
-        /* 警報表示 - 1行形式（データ部フォント拡大・行間縮小） */
+        /* 警報表示 - 1行形式（データ部フォント42pxに拡大） */
         .warning-list-compact {
             display: flex;
             flex-direction: column;
-            gap: 6px; /* 8px → 6px に縮小 */
+            gap: 8px; /* 6px → 8px に微増（視認性向上） */
         }
 
         .warning-row {
             display: flex;
             align-items: center;
-            padding: 10px 20px; /* 12px → 10px に縮小 */
+            padding: 12px 24px; /* 10px → 12px、横も拡大 */
             background: #1f2937;
             border-radius: 10px;
-            gap: 20px;
-            font-size: 32px; /* 28px → 32px に拡大 */
+            gap: 24px; /* 20px → 24px */
+            font-size: 42px; /* 32px → 42px に拡大 */
         }
 
         .warning-row.special-area {
@@ -109,11 +109,11 @@
         }
 
         .warning-badge {
-            padding: 8px 16px;
+            padding: 10px 20px; /* 8px → 10px */
             border-radius: 8px;
-            font-size: 28px; /* 24px → 28px */
+            font-size: 38px; /* 28px → 38px */
             font-weight: bold;
-            min-width: 140px;
+            min-width: 180px; /* 140px → 180px */
             text-align: center;
         }
 
@@ -141,38 +141,38 @@
         .warning-types {
             background: linear-gradient(135deg, #3b82f6, #1d4ed8);
             color: #fff;
-            font-size: 30px; /* 26px → 30px */
+            font-size: 40px; /* 30px → 40px */
             font-weight: bold;
-            padding: 8px 20px;
+            padding: 10px 24px; /* 8px → 10px */
             border-radius: 8px;
-            min-width: 120px;
+            min-width: 160px; /* 120px → 160px */
             text-align: center;
         }
 
         .special-badge {
             background: #ffd700;
             color: #000;
-            padding: 6px 14px;
+            padding: 8px 16px; /* 6px → 8px */
             border-radius: 10px;
-            font-size: 22px; /* 20px → 22px */
+            font-size: 28px; /* 22px → 28px */
             font-weight: bold;
         }
 
-        /* 地震情報（データ部フォント拡大・行間縮小） */
+        /* 地震情報（データ部フォント42pxに拡大） */
         .earthquake-list {
             display: flex;
             flex-direction: column;
-            gap: 6px; /* 8px → 6px に縮小 */
+            gap: 8px; /* 6px → 8px */
         }
 
         .earthquake-item {
             display: flex;
             align-items: center;
-            padding: 10px 20px; /* 12px → 10px に縮小 */
+            padding: 12px 24px; /* 10px → 12px */
             background: #1f2937;
             border-radius: 10px;
-            gap: 25px;
-            font-size: 32px; /* 28px → 32px に拡大 */
+            gap: 28px; /* 25px → 28px */
+            font-size: 42px; /* 32px → 42px に拡大 */
         }
 
         .earthquake-item.special-area {
@@ -182,18 +182,18 @@
         }
 
         .earthquake-time {
-            font-size: 30px; /* 26px → 30px */
+            font-size: 38px; /* 30px → 38px */
             color: #9ca3af;
-            min-width: 180px;
+            min-width: 220px; /* 180px → 220px（より広く） */
         }
 
         .earthquake-intensity {
-            padding: 8px 16px;
+            padding: 10px 20px; /* 8px → 10px */
             border-radius: 8px;
             font-weight: bold;
-            min-width: 120px;
+            min-width: 150px; /* 120px → 150px */
             text-align: center;
-            font-size: 30px; /* 26px → 30px */
+            font-size: 38px; /* 30px → 38px */
         }
 
         .intensity-1 { background: #a0aec0; color: #000; }
@@ -208,17 +208,17 @@
 
         .earthquake-location {
             flex: 1;
-            font-size: 32px; /* 28px → 32px */
+            font-size: 42px; /* 32px → 42px */
         }
 
         .earthquake-magnitude {
-            font-size: 32px; /* 28px → 32px */
+            font-size: 40px; /* 32px → 40px */
             font-weight: bold;
             color: #fff;
             background: linear-gradient(135deg, #8b5cf6, #6d28d9);
-            padding: 8px 16px;
+            padding: 10px 20px; /* 8px → 10px */
             border-radius: 8px;
-            min-width: 100px;
+            min-width: 120px; /* 100px → 120px */
             text-align: center;
         }
 
@@ -227,7 +227,7 @@
             text-align: center;
             padding: 30px;
             color: #6b7280;
-            font-size: 28px;
+            font-size: 32px; /* 28px → 32px */
         }
 
         .no-data-icon {
@@ -239,7 +239,7 @@
         .loading {
             text-align: center;
             padding: 30px;
-            font-size: 28px;
+            font-size: 32px; /* 28px → 32px */
         }
 
         .spinner {
@@ -262,7 +262,7 @@
             padding: 20px;
             border-radius: 10px;
             margin: 10px;
-            font-size: 28px;
+            font-size: 32px; /* 28px → 32px */
         }
 
         /* 出典表示 */
