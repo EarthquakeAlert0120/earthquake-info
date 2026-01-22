@@ -3,183 +3,789 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>地震情報</title>
+    <title>防災情報サイト</title>
     <style>
-        body {
-            font-family: sans-serif;
-            max-width: 1800px;
-            margin: 0 auto;
-            padding: 40px;
-            background-color: #f5f5f5;
-            font-size: 48px;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .header-container {
+
+        body {
+            font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+            background-color: #1a1a2e;
+            color: #eee;
+            min-height: 100vh;
+            font-size: 24px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px 40px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
-        h1 {
-            color: #d32f2f;
-            font-size: 80px;
-            margin: 0;
-        }
-        .header-note {
-            color: #666;
-            font-size: 20px;
-            text-align: right;
-            line-height: 1.4;
-        }
-        h2 {
-            color: #1565c0;
+
+        header h1 {
             font-size: 48px;
-            margin-top: 30px;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 4px solid #1565c0;
-        }
-        #earthquake-loading {
-            text-align: center;
-            padding: 30px;
-            font-size: 48px;
-        }
-        .earthquake-item {
-            background: white;
-            margin: 12px 0;
-            padding: 20px 35px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-        }
-        .earthquake-item.highlight {
-            background: #fff9c4;
-            border: 4px solid #fbc02d;
-        }
-        .alert-badge {
-            display: inline-block;
-            background: #ff6f00;
-            color: white;
-            padding: 8px 20px;
-            border-radius: 8px;
-            font-size: 42px;
             font-weight: bold;
-            margin-left: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
-        .earthquake-line {
-            color: #1565c0;
-            font-size: 48px;
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .update-time {
+            font-size: 28px;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 20px 40px;
+        }
+
+        .section {
+            background: #16213e;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+
+        .section-header {
+            padding: 15px 30px;
+            font-size: 32px;
             font-weight: bold;
             display: flex;
             align-items: center;
+            gap: 15px;
+        }
+
+        .section-header.warning {
+            background: linear-gradient(90deg, #ff6b6b, #ee5a5a);
+        }
+
+        .section-header.earthquake {
+            background: linear-gradient(90deg, #ffa502, #ff7f50);
+        }
+
+        .section-content {
+            padding: 15px 20px;
+        }
+
+        /* 警報表示 - 1行形式 */
+        .warning-list-compact {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .warning-row {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            background: #1f2937;
+            border-radius: 10px;
             gap: 20px;
+            font-size: 28px;
         }
-        .magnitude {
+
+        .warning-row.special-area {
+            border: 3px solid #ffd700;
+            background: linear-gradient(135deg, #1f2937 0%, #2d1810 100%);
+            animation: pulse-border 2s infinite;
+        }
+
+        @keyframes pulse-border {
+            0%, 100% { border-color: #ffd700; box-shadow: 0 0 10px #ffd700; }
+            50% { border-color: #ff6b6b; box-shadow: 0 0 20px #ff6b6b; }
+        }
+
+        .warning-badge {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 24px;
             font-weight: bold;
-            color: #d32f2f;
+            min-width: 140px;
+            text-align: center;
         }
-        .location {
-            color: #333;
+
+        .badge-special {
+            background: linear-gradient(135deg, #8b0000, #dc143c);
+            color: #fff;
+            animation: flash 1s infinite;
         }
+
+        @keyframes flash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .badge-warning {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a5a);
+            color: #fff;
+        }
+
+        .warning-area {
+            flex: 1;
+            font-weight: bold;
+        }
+
+        .warning-types {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: #fff;
+            font-size: 26px;
+            font-weight: bold;
+            padding: 8px 20px;
+            border-radius: 8px;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .special-badge {
+            background: #ffd700;
+            color: #000;
+            padding: 6px 14px;
+            border-radius: 10px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        /* 地震情報 */
+        .earthquake-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .earthquake-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            background: #1f2937;
+            border-radius: 10px;
+            gap: 25px;
+            font-size: 28px;
+        }
+
+        .earthquake-item.special-area {
+            border: 3px solid #ffd700;
+            background: linear-gradient(135deg, #1f2937 0%, #2d1810 100%);
+            animation: pulse-border 2s infinite;
+        }
+
+        .earthquake-time {
+            font-size: 26px;
+            color: #9ca3af;
+            min-width: 180px;
+        }
+
+        .earthquake-intensity {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: bold;
+            min-width: 120px;
+            text-align: center;
+            font-size: 26px;
+        }
+
+        .intensity-1 { background: #a0aec0; color: #000; }
+        .intensity-2 { background: #68d391; color: #000; }
+        .intensity-3 { background: #48bb78; color: #000; }
+        .intensity-4 { background: #f6e05e; color: #000; }
+        .intensity-5-lower { background: #ed8936; color: #000; }
+        .intensity-5-upper { background: #dd6b20; color: #fff; }
+        .intensity-6-lower { background: #e53e3e; color: #fff; }
+        .intensity-6-upper { background: #c53030; color: #fff; }
+        .intensity-7 { background: #7b341e; color: #fff; }
+
+        .earthquake-location {
+            flex: 1;
+            font-size: 28px;
+        }
+
+        .earthquake-magnitude {
+            font-size: 28px;
+            font-weight: bold;
+            color: #fff;
+            background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+            padding: 8px 16px;
+            border-radius: 8px;
+            min-width: 100px;
+            text-align: center;
+        }
+
+        /* 警報なしの表示 */
         .no-data {
             text-align: center;
-            padding: 40px;
-            color: #4caf50;
-            font-size: 48px;
-            background: white;
+            padding: 30px;
+            color: #6b7280;
+            font-size: 28px;
+        }
+
+        .no-data-icon {
+            font-size: 60px;
+            margin-bottom: 10px;
+        }
+
+        /* ローディング */
+        .loading {
+            text-align: center;
+            padding: 30px;
+            font-size: 28px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #374151;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* エラー表示 */
+        .error {
+            background: #7f1d1d;
+            padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            margin: 10px;
+            font-size: 28px;
+        }
+
+        /* 出典表示 */
+        footer {
+            text-align: center;
+            padding: 15px;
+            color: #6b7280;
+            font-size: 18px;
+        }
+
+        footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        /* 凡例 */
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 12px 20px;
+            background: #1f2937;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 22px;
+        }
+
+        .legend-color {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+        }
+
+        /* 更新ボタン */
+        .refresh-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: #fff;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 22px;
+            font-weight: bold;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .refresh-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .refresh-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
     </style>
 </head>
 <body>
-    <div class="header-container">
-        <h1>🌏 地震情報</h1>
-        <div class="header-note">
-            ※気象庁が発表した情報を表示しています<br>
-            （5分ごとに自動更新）
+    <header>
+        <h1>防災情報サイト</h1>
+        <div class="header-right">
+            <div class="update-time" id="updateTime">データ取得中...</div>
+            <button class="refresh-btn" id="refreshBtn" onclick="refreshData()">更新</button>
         </div>
+    </header>
+
+    <div class="container">
+        <!-- 警報・特別警報セクション -->
+        <section class="section">
+            <div class="section-header warning">
+                <span>気象警報・特別警報（一次細分区域別）</span>
+            </div>
+            <div class="section-content">
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: linear-gradient(135deg, #8b0000, #dc143c);"></div>
+                        <span>特別警報</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: linear-gradient(135deg, #ff6b6b, #ee5a5a);"></div>
+                        <span>警報</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: linear-gradient(135deg, #ffd700, #ff6b6b); border: 2px solid #ffd700;"></div>
+                        <span>特別監視地域</span>
+                    </div>
+                </div>
+                <div id="warningContent" class="warning-list-compact">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <div>警報情報を取得中...</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 地震情報セクション -->
+        <section class="section">
+            <div class="section-header earthquake">
+                <span>地震情報</span>
+            </div>
+            <div class="section-content">
+                <div class="legend">
+                    <div class="legend-item"><div class="legend-color intensity-1"></div><span>震度1</span></div>
+                    <div class="legend-item"><div class="legend-color intensity-2"></div><span>震度2</span></div>
+                    <div class="legend-item"><div class="legend-color intensity-3"></div><span>震度3</span></div>
+                    <div class="legend-item"><div class="legend-color intensity-4"></div><span>震度4</span></div>
+                    <div class="legend-item"><div class="legend-color intensity-5-lower"></div><span>震度5弱</span></div>
+                    <div class="legend-item"><div class="legend-color intensity-5-upper"></div><span>震度5強</span></div>
+                    <div class="legend-item"><div class="legend-color intensity-6-lower"></div><span>震度6弱</span></div>
+                    <div class="legend-item"><div class="legend-color intensity-6-upper"></div><span>震度6強</span></div>
+                    <div class="legend-item"><div class="legend-color intensity-7"></div><span>震度7</span></div>
+                </div>
+                <div id="earthquakeContent" class="earthquake-list">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <div>地震情報を取得中...</div>
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
-    
-    <h2>🌏 最近の地震情報</h2>
-    <div id="earthquake-loading">読み込み中...</div>
-    <div id="earthquake-list"></div>
+
+    <footer>
+        <p>出典: <a href="https://www.jma.go.jp/" target="_blank">気象庁ホームページ</a></p>
+        <p>※このサイトは気象庁のデータを利用しています。正確な情報は気象庁の公式サイトをご確認ください。</p>
+    </footer>
 
     <script>
-        const TARGET_AREAS = [
-            '東京都', '中央区', '大阪', '大阪市', '北区', '横浜',
-            '磯子区', '名古屋', '港区', '堺市', '西区', '倉敷', '水島'
+        // 特別監視地域の定義
+        const SPECIAL_AREAS = {
+            // 一次細分区域コード
+            class10s: {
+                '130010': '東京地方（中央区）',      // 東京都中央区
+                '140010': '神奈川県東部（横浜市磯子区）', // 横浜市磯子区
+                '230010': '愛知県西部（名古屋市港区）',  // 名古屋市港区
+                '270000': '大阪府（堺市西区）',       // 堺市西区
+                '330010': '岡山県南部（倉敷市）'      // 倉敷市
+            },
+            // 府県コード（警報データ取得用）
+            offices: ['130000', '140000', '230000', '270000', '330000'],
+            // 地震情報用の地域名キーワード
+            earthquakeKeywords: [
+                '東京', '中央区',
+                '神奈川', '横浜', '磯子',
+                '愛知', '名古屋',
+                '大阪', '堺',
+                '岡山', '倉敷'
+            ]
+        };
+
+        // 対象警報コードの定義（特別警報・警報のみ、注意報は除外）
+        // 気象庁APIでは警報コードは文字列（"06"など）で返される
+        const TARGET_WARNING_CODES = {
+            // 特別警報（30番台）
+            '35': { name: '暴風特別警報', type: 'special' },
+            '32': { name: '暴風雪特別警報', type: 'special' },
+            '36': { name: '大雪特別警報', type: 'special' },
+            '37': { name: '波浪特別警報', type: 'special' },
+            // 警報（00番台） - 気象庁APIでは"05", "06"などの文字列
+            '05': { name: '暴風警報', type: 'warning' },
+            '02': { name: '暴風雪警報', type: 'warning' },
+            '06': { name: '大雪警報', type: 'warning' },
+            '07': { name: '波浪警報', type: 'warning' }
+        };
+
+        // 注意報も含めた全対象コード（表示には使わないが参考用）
+        const ALL_TARGET_CODES = {
+            ...TARGET_WARNING_CODES,
+            // 注意報（表示対象外だが認識用）
+            15: { name: '強風注意報', type: 'advisory' },
+            13: { name: '風雪注意報', type: 'advisory' },
+            12: { name: '大雪注意報', type: 'advisory' },
+            16: { name: '波浪注意報', type: 'advisory' },
+            14: { name: '雷注意報', type: 'advisory' },
+            20: { name: '濃霧注意報', type: 'advisory' },
+            21: { name: '乾燥注意報', type: 'advisory' },
+            22: { name: 'なだれ注意報', type: 'advisory' },
+            23: { name: '低温注意報', type: 'advisory' },
+            24: { name: '霜注意報', type: 'advisory' },
+            26: { name: '着雪注意報', type: 'advisory' }
+        };
+
+        // 全府県コード
+        const ALL_OFFICES = [
+            '011000', '012000', '013000', '014030', '015000', '016000', '017000', // 北海道
+            '020000', // 青森
+            '030000', // 岩手
+            '040000', // 宮城
+            '050000', // 秋田
+            '060000', // 山形
+            '070000', // 福島
+            '080000', // 茨城
+            '090000', // 栃木
+            '100000', // 群馬
+            '110000', // 埼玉
+            '120000', // 千葉
+            '130000', // 東京
+            '140000', // 神奈川
+            '150000', // 新潟
+            '160000', // 富山
+            '170000', // 石川
+            '180000', // 福井
+            '190000', // 山梨
+            '200000', // 長野
+            '210000', // 岐阜
+            '220000', // 静岡
+            '230000', // 愛知
+            '240000', // 三重
+            '250000', // 滋賀
+            '260000', // 京都
+            '270000', // 大阪
+            '280000', // 兵庫
+            '290000', // 奈良
+            '300000', // 和歌山
+            '310000', // 鳥取
+            '320000', // 島根
+            '330000', // 岡山
+            '340000', // 広島
+            '350000', // 山口
+            '360000', // 徳島
+            '370000', // 香川
+            '380000', // 愛媛
+            '390000', // 高知
+            '400000', // 福岡
+            '410000', // 佐賀
+            '420000', // 長崎
+            '430000', // 熊本
+            '440000', // 大分
+            '450000', // 宮崎
+            '460100', // 鹿児島
+            '471000', '472000', '473000', '474000' // 沖縄
         ];
 
-        async function fetchEarthquakeData() {
+        // エリア情報キャッシュ
+        let areaInfo = null;
+
+        // エリア情報を取得
+        async function fetchAreaInfo() {
+            if (areaInfo) return areaInfo;
+
+            try {
+                const response = await fetch('https://www.jma.go.jp/bosai/common/const/area.json');
+                areaInfo = await response.json();
+                return areaInfo;
+            } catch (error) {
+                console.error('エリア情報取得エラー:', error);
+                return null;
+            }
+        }
+
+        // 警報データを取得
+        async function fetchWarnings() {
+            const areas = await fetchAreaInfo();
+            if (!areas) {
+                return { error: 'エリア情報の取得に失敗しました' };
+            }
+
+            const allWarnings = [];
+            const fetchPromises = ALL_OFFICES.map(async (officeCode) => {
+                try {
+                    const response = await fetch(`https://www.jma.go.jp/bosai/warning/data/warning/${officeCode}.json`);
+                    if (!response.ok) return null;
+
+                    const data = await response.json();
+
+                    // areaTypes[0]が一次細分区域（class10s）のデータ
+                    // 注: 気象庁APIのareaTypesにはtypeプロパティがないため、インデックスで取得
+                    const class10sData = data.areaTypes?.[0];
+                    if (!class10sData || !class10sData.areas) return null;
+
+                    class10sData.areas.forEach(area => {
+                        // 発令中の対象警報のみ抽出（解除されたものは除外）
+                        const activeWarnings = (area.warnings || []).filter(w => {
+                            // 警報コードは文字列で返されるため、パディングして比較
+                            const codeStr = String(w.code).padStart(2, '0');
+                            const isTargetCode = TARGET_WARNING_CODES[codeStr] !== undefined;
+                            const isActive = w.status !== '解除' && w.status !== '発表警報・注意報はなし';
+                            return isTargetCode && isActive;
+                        });
+
+                        if (activeWarnings.length > 0) {
+                            const areaName = areas.class10s?.[area.code]?.name || area.code;
+                            const officeName = areas.offices?.[officeCode]?.name || officeCode;
+                            const isSpecialArea = SPECIAL_AREAS.class10s[area.code] !== undefined;
+
+                            allWarnings.push({
+                                code: area.code,
+                                areaName: areaName,
+                                officeName: officeName,
+                                fullName: `${officeName} ${areaName}`,
+                                warnings: activeWarnings.map(w => {
+                                    const codeStr = String(w.code).padStart(2, '0');
+                                    return {
+                                        code: w.code,
+                                        name: TARGET_WARNING_CODES[codeStr]?.name || `コード${w.code}`,
+                                        type: TARGET_WARNING_CODES[codeStr]?.type || 'warning',
+                                        status: w.status
+                                    };
+                                }),
+                                isSpecialArea: isSpecialArea,
+                                specialAreaNote: isSpecialArea ? SPECIAL_AREAS.class10s[area.code] : null
+                            });
+                        }
+                    });
+                } catch (error) {
+                    console.error(`警報取得エラー (${officeCode}):`, error);
+                }
+            });
+
+            await Promise.all(fetchPromises);
+
+            // 特別地域を先頭に、その後は都道府県コード順にソート
+            allWarnings.sort((a, b) => {
+                if (a.isSpecialArea && !b.isSpecialArea) return -1;
+                if (!a.isSpecialArea && b.isSpecialArea) return 1;
+                return a.code.localeCompare(b.code);
+            });
+
+            return { warnings: allWarnings };
+        }
+
+        // 地震情報を取得
+        async function fetchEarthquakes() {
             try {
                 const response = await fetch('https://www.jma.go.jp/bosai/quake/data/list.json');
+                if (!response.ok) {
+                    return { error: '地震情報の取得に失敗しました' };
+                }
+
                 const data = await response.json();
-                displayEarthquakes(data);
+
+                // 最新20件を取得
+                const earthquakes = data.slice(0, 20).map(eq => {
+                    const location = eq.anm || '不明';
+                    const isSpecialArea = SPECIAL_AREAS.earthquakeKeywords.some(keyword =>
+                        location.includes(keyword)
+                    );
+
+                    return {
+                        time: eq.at,
+                        intensity: eq.maxi || '-',
+                        location: location,
+                        magnitude: eq.mag,
+                        isSpecialArea: isSpecialArea
+                    };
+                });
+
+                // 特別地域を先頭に
+                earthquakes.sort((a, b) => {
+                    if (a.isSpecialArea && !b.isSpecialArea) return -1;
+                    if (!a.isSpecialArea && b.isSpecialArea) return 1;
+                    return 0;
+                });
+
+                return { earthquakes };
             } catch (error) {
-                document.getElementById('earthquake-loading').textContent = 'データの取得に失敗しました';
-                console.error('Error:', error);
+                console.error('地震情報取得エラー:', error);
+                return { error: '地震情報の取得に失敗しました' };
             }
         }
 
-        function formatDateTime(dateString) {
-            const date = new Date(dateString);
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            const hour = String(date.getHours()).padStart(2, '0');
-            const minute = String(date.getMinutes()).padStart(2, '0');
-            
-            return `${year}年${month}月${day}日 ⏰ ${hour}時${minute}分`;
-        }
+        // 警報表示を更新（1行形式）
+        function renderWarnings(result) {
+            const container = document.getElementById('warningContent');
 
-        function isTargetArea(locationText) {
-            if (!locationText) return false;
-            return TARGET_AREAS.some(area => locationText.includes(area));
-        }
-
-        function displayEarthquakes(data) {
-            const loading = document.getElementById('earthquake-loading');
-            const list = document.getElementById('earthquake-list');
-            
-            loading.style.display = 'none';
-            
-            if (!data || data.length === 0) {
-                list.innerHTML = '<div class="no-data">✅ 最近の地震情報はありません</div>';
+            if (result.error) {
+                container.innerHTML = `<div class="error">${result.error}</div>`;
                 return;
             }
-            
-            data.slice(0, 20).forEach(item => {
-                const div = document.createElement('div');
-                div.className = 'earthquake-item';
-                
-                const datetime = formatDateTime(item.at);
-                const location = item.anm || '情報なし';
-                const isTarget = isTargetArea(location);
-                
-                if (isTarget) {
-                    div.classList.add('highlight');
-                }
-                
-                div.innerHTML = `
-                    <div class="earthquake-line">
-                        <span>📅 ${datetime}</span>
-                        <span class="magnitude">震度: ${item.maxi || '不明'}</span>
-                        <span class="location">📍 ${location}</span>
-                        ${isTarget ? '<span class="alert-badge">⚠️ 要注意地域</span>' : ''}
+
+            if (!result.warnings || result.warnings.length === 0) {
+                container.innerHTML = `
+                    <div class="no-data">
+                        <div class="no-data-icon">✓</div>
+                        <div>現在、対象となる特別警報・警報は発表されていません</div>
+                        <div style="font-size: 22px; margin-top: 10px; color: #9ca3af;">
+                            対象: 暴風、暴風雪、大雪、波浪の特別警報・警報
+                        </div>
                     </div>
                 `;
-                
-                list.appendChild(div);
-            });
+                return;
+            }
+
+            // 1行形式で表示: [警報/特別警報] 地域名 警報種別
+            container.innerHTML = result.warnings.map(area => {
+                const hasSpecial = area.warnings.some(w => w.type === 'special');
+                const warningNames = area.warnings.map(w => w.name.replace('警報', '').replace('特別', '')).join('・');
+
+                return `
+                    <div class="warning-row ${area.isSpecialArea ? 'special-area' : ''}">
+                        <span class="warning-badge ${hasSpecial ? 'badge-special' : 'badge-warning'}">
+                            ${hasSpecial ? '特別警報' : '警報'}
+                        </span>
+                        <span class="warning-area">${area.fullName}</span>
+                        <span class="warning-types">${warningNames}</span>
+                        ${area.isSpecialArea ? '<span class="special-badge">特別監視</span>' : ''}
+                    </div>
+                `;
+            }).join('');
         }
 
-        // 初回実行
-        fetchEarthquakeData();
-        
-        // 5分ごとに自動更新
-        setInterval(() => {
-            document.getElementById('earthquake-list').innerHTML = '';
-            fetchEarthquakeData();
-        }, 300000);
+        // 震度のクラス名を取得
+        function getIntensityClass(intensity) {
+            const intensityMap = {
+                '1': 'intensity-1',
+                '2': 'intensity-2',
+                '3': 'intensity-3',
+                '4': 'intensity-4',
+                '5-': 'intensity-5-lower',
+                '5弱': 'intensity-5-lower',
+                '5+': 'intensity-5-upper',
+                '5強': 'intensity-5-upper',
+                '6-': 'intensity-6-lower',
+                '6弱': 'intensity-6-lower',
+                '6+': 'intensity-6-upper',
+                '6強': 'intensity-6-upper',
+                '7': 'intensity-7'
+            };
+            return intensityMap[intensity] || 'intensity-1';
+        }
+
+        // 震度の表示テキストを取得
+        function getIntensityText(intensity) {
+            const textMap = {
+                '5-': '5弱',
+                '5+': '5強',
+                '6-': '6弱',
+                '6+': '6強'
+            };
+            return textMap[intensity] || intensity;
+        }
+
+        // 日時をフォーマット
+        function formatDateTime(isoString) {
+            if (!isoString) return '不明';
+            const date = new Date(isoString);
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            const hours = date.getHours().toString().padStart(2, '0');
+            const minutes = date.getMinutes().toString().padStart(2, '0');
+            return `${month}/${day} ${hours}:${minutes}`;
+        }
+
+        // 地震情報表示を更新
+        function renderEarthquakes(result) {
+            const container = document.getElementById('earthquakeContent');
+
+            if (result.error) {
+                container.innerHTML = `<div class="error">${result.error}</div>`;
+                return;
+            }
+
+            if (!result.earthquakes || result.earthquakes.length === 0) {
+                container.innerHTML = `
+                    <div class="no-data">
+                        <div class="no-data-icon">✓</div>
+                        <div>最近の地震情報はありません</div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = result.earthquakes.map(eq => `
+                <div class="earthquake-item ${eq.isSpecialArea ? 'special-area' : ''}">
+                    <span class="earthquake-time">${formatDateTime(eq.time)}</span>
+                    <span class="earthquake-intensity ${getIntensityClass(eq.intensity)}">
+                        震度${getIntensityText(eq.intensity)}
+                    </span>
+                    <span class="earthquake-location">
+                        ${eq.location}
+                        ${eq.isSpecialArea ? '<span class="special-badge" style="margin-left: 8px;">特別監視</span>' : ''}
+                    </span>
+                    <span class="earthquake-magnitude">M${eq.magnitude || '-'}</span>
+                </div>
+            `).join('');
+        }
+
+        // 更新時刻を表示
+        function updateTimeDisplay() {
+            const now = new Date();
+            const timeStr = `${now.getFullYear()}/${(now.getMonth()+1).toString().padStart(2,'0')}/${now.getDate().toString().padStart(2,'0')} ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
+            document.getElementById('updateTime').textContent = `最終更新: ${timeStr}`;
+        }
+
+        // データを更新
+        async function refreshData() {
+            const btn = document.getElementById('refreshBtn');
+            btn.disabled = true;
+            btn.textContent = '更新中...';
+
+            document.getElementById('warningContent').innerHTML = `<div class="loading"><div class="spinner"></div><div>警報情報を取得中...</div></div>`;
+            document.getElementById('earthquakeContent').innerHTML = `<div class="loading"><div class="spinner"></div><div>地震情報を取得中...</div></div>`;
+
+            try {
+                const [warningResult, earthquakeResult] = await Promise.all([
+                    fetchWarnings(),
+                    fetchEarthquakes()
+                ]);
+
+                renderWarnings(warningResult);
+                renderEarthquakes(earthquakeResult);
+                updateTimeDisplay();
+            } catch (error) {
+                console.error('データ更新エラー:', error);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '更新';
+            }
+        }
+
+        // 初期ロード
+        document.addEventListener('DOMContentLoaded', () => {
+            refreshData();
+            // 5分ごとに自動更新
+            setInterval(refreshData, 5 * 60 * 1000);
+        });
     </script>
 </body>
 </html>
